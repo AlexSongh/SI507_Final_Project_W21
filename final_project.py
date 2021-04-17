@@ -7,10 +7,8 @@ import secrets # file that contains my API key
 
 TOP250_URL = "https://www.imdb.com/chart/top/"
 BASE_URL = "https://www.imdb.com"
-# BASE_URL = "https://www.nps.gov"
 CACHE_FILENAME = "fp_cache.json"
 CACHE_DICT = {}
-# MAP_URL = "http://www.mapquestapi.com/search/v2/radius"
 
 # consumer_key = secrets.CONSUMER_KEY
 # consumer_secret = secrets.CONSUMER_SECRET
@@ -45,7 +43,7 @@ class Movie:
         The synopsis of the movie
 
     '''
-    def __init__(self, name, year, movie_rating, genre, length, score, director, stars):
+    def __init__(self, name, year, movie_rating, genre, length, score, director, stars, description):
         self.name = name
         self.year = year
         self.movie_rating = movie_rating
@@ -54,9 +52,13 @@ class Movie:
         self.score = score
         self.director = director
         self.stars = stars
+        self.description = description
     
     def info(self):
         return f"{self.name} ({self.year}) is directed by {self.director}."
+    
+    def story(self):
+        return f"{self.description}"
 
 def open_cache():
     ''' Opens the cache file if it exists and loads the JSON into
@@ -160,12 +162,12 @@ def build_movie_url_dict():
 
 def create_movie_instance(movie_url):
     '''Make an instance from movie URL.
-    
+
     Parameters
     ----------
     movie_url: string
         The URL for a specific movie (Within range 250)
-    
+
     Returns
     -------
     instance
@@ -190,16 +192,21 @@ def create_movie_instance(movie_url):
         star_list.append(star.text)
     star_list.pop() #remove the last "see full_cast & crew"
 
-    movie_instance = Movie(name=name, year=year,movie_rating=movie_rating, genre=genre, length=length, score=score, director=director,stars=star_list)
+    # lowest level in HTML that captures the JS data
+    summary = soup.find(class_='title-overview')
+    # get the summary text
+    description = summary.find(class_='summary_text').text.strip()
+
+    movie_instance = Movie(name=name, year=year,movie_rating=movie_rating, genre=genre, length=length, score=score, director=director,stars=star_list,description=description)
     return movie_instance
 
 
 
 if __name__ == "__main__":
     imdb_dict = build_movie_url_dict()
-    print(imdb_dict)
+    # print(imdb_dict)
     movie1 = create_movie_instance(imdb_dict[1])
-    print(movie1.info())
+    print(movie1.story())
 
 
 
