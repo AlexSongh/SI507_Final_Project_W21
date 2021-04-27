@@ -7,7 +7,10 @@
 
 ## Data Sources:
 
-IMDB Top 250: [https://www.imdb.com/chart/top/][https://www.imdb.com/chart/top/]
+IMDB Top 250: Main page[https://www.imdb.com/chart/top/] + 250 individual movie pages
+(challenge score 8: Crawling [and scraping] multiple pages in a site you haven’t used before)
+iTunes API
+(challenge score 2: Web API you’ve used before)
 
 ## Packages required:
 bs4, requests, sqlite3, json
@@ -55,13 +58,14 @@ Enter a number to tell the program how many results top movies to show.
 Or enter "exit" to end the program.
 
 #### Step 2:
-Enter a specific number to show the detailed information of the movie.
+Enter a specific number to show the detailed information of the movie;
 Or enter "return" to go back to the upper level Step 1;
 Or enter "exit" to end the program.
 #### Step 3:
-Enter "summary" for plot summary
-Or enter "stars" for more movies of the related stars
-Or enter "save" to save the movie in your favorite movie database called "favmovie.sqlite"
+Enter "summary" for plot summary;
+Or enter "stars" for more movies of the related stars;
+Or enter "save" to save the movie in your favorite movie database called "favmovie.sqlite";
+Or enter "bar" to show how many movies in each decade in your current database to get an insight of your movie taste;
 Or enter "return" to go back to the upper level Step 2;
 Or enter "exit" to end the program.
 

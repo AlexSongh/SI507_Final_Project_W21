@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import requests
 import json
 import sqlite3
+import plotly.graph_objects as go
 
 
 TOP250_URL = "https://www.imdb.com/chart/top/"
@@ -109,7 +110,8 @@ class iTunesMovie(iTunesMedia):
 
 # Build a personalized database called favmovie.sqlite
 DBNAME = 'favmovie.sqlite'
-movie_history = []
+MOVIE_HISTORY = []
+MOVIE_DBLIST = []
 
 def init_fav_db():
     '''
@@ -203,10 +205,12 @@ def insert_fav_db(movie):
         VALUES (?,?,?,?,?,?,?,?);
         '''
     movie_uniq = f"{movie.name} ({movie.year})"
-    if movie_uniq not in movie_history:
+
+    if movie_uniq not in MOVIE_HISTORY:
         cur.execute(statement,insertion)
         conn.commit()
-        movie_history.append(movie_uniq)  # Record the movie to make sure we won't add duplicate records in database
+        MOVIE_HISTORY.append(movie_uniq)  # Record the movie to make sure we won't add duplicate records in database
+        MOVIE_DBLIST.append(movie)
 
     conn.close()
 
@@ -426,6 +430,40 @@ def show_star_more(starslist):
         print("......")
         print()
 
+def plot_bar(movie_list):
+    ''' plot the barplot based on the movie list
+    Parameters
+    ----------
+    list of Movie Instance
+  
+    Returns
+    -------
+    None
+
+    '''
+    xvals = ['Before 70s', '1970s','1980s','1990s','2000s','2010s later']
+    yvals = [0,0,0,0,0,0]
+    basic_layout = go.Layout(title=f"The number of movies of each decades in your Database")
+
+    for movie in movie_list:
+        if movie.year <1970:
+            yvals[0] = yvals[0]+1
+        elif movie.year >=1970 and movie.year <1980:
+            yvals[1] = yvals[1]+1
+        elif movie.year >=1980 and movie.year <1990:
+            yvals[2] = yvals[2]+1
+        elif movie.year >=1990 and movie.year <2000:
+            yvals[3] = yvals[3]+1
+        elif movie.year >=2000 and movie.year <2010:
+            yvals[4] = yvals[4]+1
+        elif movie.year >=2010:
+            yvals[5] = yvals[5]+1
+
+    bar_data = go.Bar(x=xvals, y=yvals)
+    fig = go.Figure(data=bar_data)
+
+    fig.show()
+
 
 def interactive_design():
     user_input = ''
@@ -458,7 +496,7 @@ def interactive_design():
             user_input3 =''
             while user_input3 !='exit':
                 # Need change here
-                user_input3 = input('''For more detailed information for the movie, enter 'stars' for more movies played by the stars, enter 'save' to save this movie records in your personalized database, enter 'return' to go back to upper level, or enter 'exit' to end the program: ''')
+                user_input3 = input('''For more detailed information for the movie, enter 'stars' for more movies played by the stars, enter 'save' to save this movie records in your personalized database, enter 'bar' to show bar plot of your movie database's number of saved movies in different decades, enter 'return' to go back to upper level, or enter 'exit' to end the program: ''')
                 print("-"*100)
                 if user_input3 == 'return':
                     break
@@ -473,7 +511,9 @@ def interactive_design():
                     # Save the movie to the personalized database
                     insert_fav_db(movie)
                     print("You have successfully saved this movie in your favorite movie database.")
-
+                elif user_input3 == 'bar':
+                    # Plot the current db number of movies in each decade 
+                    plot_bar(MOVIE_DBLIST)
                 else:
                     print("Invalid Input")
                     continue
@@ -490,6 +530,8 @@ if __name__ == "__main__":
 
     # Start the program ------------------------------------------------------------------------------------
     interactive_design()
+
+
 
 
 
