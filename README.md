@@ -65,7 +65,8 @@ Or enter "exit" to end the program.
 Enter "summary" for plot summary;
 Or enter "stars" for more movies of the related stars;
 Or enter "save" to save the movie in your favorite movie database called "favmovie.sqlite";
-Or enter "bar" to show how many movies in each decade in your current database to get an insight of your movie taste;
+Or enter "time" to show how many movies in each decade in your current database to get an insight of your movie taste;
+Or enter "rating" to show movie_ratings of your favorite movies in movie database.
 Or enter "return" to go back to the upper level Step 2;
 Or enter "exit" to end the program.
 
