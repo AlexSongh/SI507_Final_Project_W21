@@ -430,7 +430,7 @@ def show_star_more(starslist):
         print("......")
         print()
 
-def plot_bar(movie_list):
+def plot_time(movie_list):
     ''' plot the barplot based on the movie list
     Parameters
     ----------
@@ -465,6 +465,33 @@ def plot_bar(movie_list):
     fig.show()
 
 
+def plot_rating(movie_list):
+    ''' plot the barplot based on the movie list
+    Parameters
+    ----------
+    list of Movie Instance
+  
+    Returns
+    -------
+    None
+
+    '''
+    xvals = []
+    yvals = []
+    basic_layout = go.Layout(title=f"The number of movies of each movie_rating in your Database")
+
+    for movie in movie_list:
+        if movie.movie_rating not in xvals:
+            xvals.append(movie.movie_rating)
+            yvals.append(1)
+        elif movie.movie_rating in xvals:
+            yvals[xvals.index(movie.movie_rating)] = yvals[xvals.index(movie.movie_rating)]+1
+
+    bar_data = go.Bar(x=xvals, y=yvals)
+    fig = go.Figure(data=bar_data)
+
+    fig.show()
+
 def interactive_design():
     user_input = ''
     while user_input != 'exit':
@@ -496,7 +523,7 @@ def interactive_design():
             user_input3 =''
             while user_input3 !='exit':
                 # Need change here
-                user_input3 = input('''For more detailed information for the movie, enter 'stars' for more movies played by the stars, enter 'save' to save this movie records in your personalized database, enter 'bar' to show bar plot of your movie database's number of saved movies in different decades, enter 'return' to go back to upper level, or enter 'exit' to end the program: ''')
+                user_input3 = input('''For more detailed information for the movie, enter 'stars' for more movies played by the stars, enter 'save' to save this movie records in your personalized database, enter 'time' or 'rating' to show bar plot of your movie database's ages and movie rating information, enter 'return' to go back to upper level, or enter 'exit' to end the program: ''')
                 print("-"*100)
                 if user_input3 == 'return':
                     break
@@ -511,9 +538,11 @@ def interactive_design():
                     # Save the movie to the personalized database
                     insert_fav_db(movie)
                     print("You have successfully saved this movie in your favorite movie database.")
-                elif user_input3 == 'bar':
+                elif user_input3 == 'time':
                     # Plot the current db number of movies in each decade 
-                    plot_bar(MOVIE_DBLIST)
+                    plot_time(MOVIE_DBLIST)
+                elif user_input3 == 'rating':
+                    plot_rating(MOVIE_DBLIST)
                 else:
                     print("Invalid Input")
                     continue
