@@ -6,14 +6,109 @@ import json
 import secrets # file that contains my API key
 import sqlite3
 
+
 TOP250_URL = "https://www.imdb.com/chart/top/"
 BASE_URL = "https://www.imdb.com"
 CACHE_FILENAME = "fp_cache.json"
 CACHE_DICT = {}
-# consumer_key = secrets.CONSUMER_KEY
-# consumer_secret = secrets.CONSUMER_SECRET
 
-# Part 1: Read data from a database called IMDB.sqlite
+## Build Movie instance from the information of IMDB
+class Movie:
+    '''a movie
+
+    Instance Attributes
+    -------------------
+
+    name: string
+        the name of the movie (e.g. "The Godfather")
+    
+    year: int
+        the year of the movie released (e.g. 1994)
+
+    movie_rating: string
+        the film rating (e.g. 'R')
+    
+    genre: string
+        the genre (e.g. 'comedy')
+
+    
+    lenth: string
+        the film length (e.g. '2h 22min')
+
+    score: float
+        the IMDb rating for the movie (e.g. 9.2)
+
+    director: string
+        the director of the movie
+    
+    stars: list of strings
+        the actors and actress in the movie
+    
+    description: string
+        The synopsis of the movie
+
+    '''
+    def __init__(self, name, year, movie_rating, genre, length, score, director, stars, description):
+        self.name = name
+        self.year = year
+        self.movie_rating = movie_rating
+        self.genre = genre
+        self.length = length
+        self.score = score
+        self.director = director
+        self.stars = stars
+        self.description = description
+
+    def info(self):
+        stars = ', '.join(self.stars)
+        return f"{self.name} ({self.year}) [{self.movie_rating}] is directed by {self.director} and played by {stars}. Total movie length is {self.length}."
+
+    def story(self):
+        return f"{self.description}"
+
+
+## Build iTunesMedia instance from the information extracted from iTunes API
+class iTunesMedia:
+    def __init__(self, title="No Title", author="No Author", release_year="No Release Year", url="No URL", json=None):
+        if (json is None):
+            self.author = author
+            self.release_year = str(release_year)
+            self.url = url
+        else:
+            if 'trackName' in json:
+                self.title = json['trackName']
+            else:
+                self.title = json['collectionName']
+
+            if 'collectionViewURL' in json:
+                self.url = json['collectionViewUrl']
+
+            self.author = json['artistName']
+            self.release_year = json['releaseDate'][0:4]
+    def info(self):
+        return f'{self.title} by {self.author} ({self.release_year})'
+    def length(self):
+        return 0
+
+
+## Build iTunesMovie instance from the information extracted from iTunes API
+class iTunesMovie(iTunesMedia):
+    def __init__(self, title="No Title", author ="No Author", release_year="No Release Year", url="No URL", json=None, rating="No Rating", movie_length=0):
+        super().__init__(title, author, release_year, url, json) #That's why you stuck!! Forgot to pass json
+        if (json is None):
+            self.rating = rating
+            self.movie_length = movie_length
+        elif json != None and json['kind']=="feature-movie":
+            self.title = json['trackName']
+            self.rating = json['contentAdvisoryRating']
+            self.movie_length = json['trackTimeMillis']
+    def info(self):
+        return super().info()+f" [{self.rating}]"
+    def length(self):
+        return round(self.movie_length/60000) #convert from milliseconds to minutes
+
+
+# Build a personalized database called favmovie.sqlite
 DBNAME = 'favmovie.sqlite'
 movie_history = []
 
@@ -85,10 +180,11 @@ def init_fav_db():
     conn.commit()
     conn.close()
 
+
 def insert_fav_db(movie):
     '''
     Insert your favorite movie information in database for Table_movie
-    
+
     Parameters
     ----------
     movie: Movie instance
@@ -116,59 +212,6 @@ def insert_fav_db(movie):
     conn.close()
 
 
-
-class Movie:
-    '''a movie
-
-    Instance Attributes
-    -------------------
-
-    name: string
-        the name of the movie (e.g. "The Godfather")
-    
-    year: int
-        the year of the movie released (e.g. 1994)
-
-    movie_rating: string
-        the film rating (e.g. 'R')
-    
-    genre: string
-        the genre (e.g. 'comedy')
-
-    
-    lenth: string
-        the film length (e.g. '2h 22min')
-
-    score: float
-        the IMDb rating for the movie (e.g. 9.2)
-
-    director: string
-        the director of the movie
-    
-    stars: list of strings
-        the actors and actress in the movie
-    
-    description: string
-        The synopsis of the movie
-
-    '''
-    def __init__(self, name, year, movie_rating, genre, length, score, director, stars, description):
-        self.name = name
-        self.year = year
-        self.movie_rating = movie_rating
-        self.genre = genre
-        self.length = length
-        self.score = score
-        self.director = director
-        self.stars = stars
-        self.description = description
-
-    def info(self):
-        stars = ', '.join(self.stars)
-        return f"{self.name} ({self.year}) [{self.movie_rating}] is directed by {self.director} and played by {stars}. Total movie length is {self.length}"
-
-    def story(self):
-        return f"{self.description}"
 
 def open_cache():
     ''' Opens the cache file if it exists and loads the JSON into
@@ -297,8 +340,6 @@ def create_movie_instance(movie_url):
     genre = ''
     genre = ', '.join(clean_list)
 
-
-
     length = soup.find('div',class_='subtext').find('time').text.strip()
     score = float(soup.find('span',itemprop='ratingValue').text)
 
@@ -331,6 +372,7 @@ def display_top(num):
         movie_list.append(title)
 
     iters = 1
+    print("-"*100)
     print(f"Top {num} Movies are displayed below")
     print("-"*100)
     for movie in movie_list[:num]:
@@ -338,8 +380,41 @@ def display_top(num):
         print(movie)
         iters = iters+1
 
-def show_star_more(star):
-    pass
+def get_itunes_data(artist,limit):
+    '''
+    name: get_itunes_data
+    parameters: artist (term that you want to search), limit(a number that you want to preview)
+    function: the fuction request an url of your choice in iTunes API and extract the data you would like to see
+    returns: artist_data, a list of dictionaries (jsons)
+    '''
+    itunes_api = "https://itunes.apple.com/search"
+    params = {'term':artist,'limit':limit}
+    result = requests.get(itunes_api,params)
+    artist_dict = json.loads(result.text) #this is a dict with keys of "resultCount" and "results"
+    artist_data = artist_dict['results']
+    return artist_data
+
+
+def show_star_more(starslist):
+    '''
+    Show more movies of the stars
+    Parameters
+    ---------------------
+    stars_list:
+    list of strings
+    Return
+    ----------------------
+    None
+    '''
+    for star in starslist:
+        print(f"{star}'s More Movies: ")
+        results = get_itunes_data(star, 10)
+        for result in results:
+            if "track" in result['wrapperType']:
+                if "feature-movie" in result['kind']:
+                    print(iTunesMovie(json=result).info())
+        print("......")
+        print()
 
 
 def interactive_design():
@@ -368,29 +443,27 @@ def interactive_design():
                 continue
             movie = create_movie_instance(imdb_dict[int(user_input2)])
             print(movie.info())
+            print(movie.story())
 
             print('-'*100)
-            print("Want more information of the movie or related actors?")
             user_input3 =''
             while user_input3 !='exit':
                 # Need change here
-                user_input3 = input('''For more detailed information for the movie, enter 'summary' for plot summary, enter 'save' to save the movie records in your personalized database, enter 'return' to go back to upper level, or enter 'exit' to end the program: ''')
+                user_input3 = input('''For more detailed information for the movie, enter 'stars' for more movies played by the stars, enter 'save' to save this movie records in your personalized database, enter 'return' to go back to upper level, or enter 'exit' to end the program: ''')
                 print("-"*100)
                 if user_input3 == 'return':
                     break
                 elif user_input3 == 'exit':
                     exit()
-                elif user_input3 == 'summary':
-                    print()
-                    print(movie.story())
-                    print("-"*100)
-                elif user_input3 in movie.stars:
-                    print()
+                elif user_input3 == 'stars':
+                    print("Showing more movies of the stars'...")
+                    show_star_more(starslist=movie.stars)
+
                 elif user_input3 == 'save':
                     # Save the movie to the personalized database
                     insert_fav_db(movie)
                     print("You have successfully saved this movie in your favorite movie database.")
-        
+
                 else:
                     print("Invalid Input")
                     continue
@@ -402,34 +475,11 @@ if __name__ == "__main__":
     imdb_dict = build_movie_url_dict()
     # print(imdb_dict)
 
+    # Create personalized movie database--------------------------------------------------------------------------------------
+    init_fav_db()
+
     # Start the program ------------------------------------------------------------------------------------
     interactive_design()
-
-
-
-    # print(imdb_dict)
-    init_fav_db()
-    movie1 = create_movie_instance(imdb_dict[1])
-    movie2 = create_movie_instance(imdb_dict[2])
-    movie30 = create_movie_instance(imdb_dict[30])
-    movie44 = create_movie_instance(imdb_dict[44])
-
-    # print(type(movie1.score))
-    insert_fav_db(movie1)
-    insert_fav_db(movie2)
-    insert_fav_db(movie30)
-    insert_fav_db(movie44)
-    insert_fav_db(movie1)
-    insert_fav_db(movie2)
-  
-
-    # print(movie1.length)
-    # print(movie1.info())
-    # print(movie1.story())
-    # response = input("Do you want to lanuch the interactive program for IMDB Top 250? Enter Yes to continue: ")
-    # if response =="Yes":
-    #     interactive_design()
-    # init_db()
 
 
 
