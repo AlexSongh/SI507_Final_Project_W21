@@ -3,7 +3,6 @@
 from bs4 import BeautifulSoup
 import requests
 import json
-import secrets # file that contains my API key
 import sqlite3
 
 
@@ -443,7 +442,6 @@ def interactive_design():
                 continue
             movie = create_movie_instance(imdb_dict[int(user_input2)])
             print(movie.info())
-            print(movie.story())
 
             print('-'*100)
             user_input3 =''
@@ -458,7 +456,8 @@ def interactive_design():
                 elif user_input3 == 'stars':
                     print("Showing more movies of the stars'...")
                     show_star_more(starslist=movie.stars)
-
+                elif user_input3 == 'summary':
+                    print(f"The plot summary for movie {movie.name} is:\n{movie.story()}\n")
                 elif user_input3 == 'save':
                     # Save the movie to the personalized database
                     insert_fav_db(movie)
