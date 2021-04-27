@@ -360,6 +360,17 @@ def create_movie_instance(movie_url):
     return movie_instance
 
 def display_top(num):
+    '''
+    Display the top <num> results of the top movies in IMDb. 
+    Parameter:
+    -------------------
+    num: integer
+    Return
+    ---------------
+    None
+
+
+    '''
     response = requests.get(TOP250_URL)
     soup = BeautifulSoup(response.text, 'html.parser')
     titlecolumn_list = soup.find_all('td',class_='titleColumn')
