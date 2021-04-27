@@ -470,7 +470,7 @@ def interactive_design():
     while user_input != 'exit':
         user_input = input("Please enter a number (between 1 to 250) to display top IMDb movies, or 'exit' to leave: ")
         if user_input == 'exit':
-            break
+            exit()
         if not user_input.isnumeric() or int(user_input)>250 or int(user_input)<1:
             print('Invalid Input')
             continue
