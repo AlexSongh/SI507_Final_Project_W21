@@ -431,7 +431,7 @@ def show_star_more(starslist):
         print()
 
 def plot_time(movie_list):
-    ''' plot the barplot based on the movie list
+    ''' plot the barplot (decade) based on the movie list
     Parameters
     ----------
     list of Movie Instance
@@ -466,7 +466,7 @@ def plot_time(movie_list):
 
 
 def plot_rating(movie_list):
-    ''' plot the barplot based on the movie list
+    ''' plot the barplot (rating) based on the movie list
     Parameters
     ----------
     list of Movie Instance
@@ -491,6 +491,62 @@ def plot_rating(movie_list):
     fig = go.Figure(data=bar_data)
 
     fig.show()
+
+def plot_star(movie_list):
+    ''' plot the barplot (star) based on the movie list
+    Parameters
+    ----------
+    list of Movie Instance
+  
+    Returns
+    -------
+    None
+
+    '''
+    xvals = []
+    yvals = []
+    basic_layout = go.Layout(title=f"The number of movies of actors in your Database")
+
+    for movie in movie_list:
+        for i in movie.stars:
+            if i not in xvals:
+                xvals.append(i)
+                yvals.append(1)
+            elif i in xvals:
+                yvals[xvals.index(i)] = yvals[xvals.index(i)]+1
+
+    bar_data = go.Bar(x=xvals, y=yvals)
+    fig = go.Figure(data=bar_data)
+
+    fig.show()
+
+def plot_director(movie_list):
+    ''' plot the barplot (director) based on the movie list
+    Parameters
+    ----------
+    list of Movie Instance
+  
+    Returns
+    -------
+    None
+
+    '''
+    xvals = []
+    yvals = []
+    basic_layout = go.Layout(title=f"The number of movies of each movie_rating in your Database")
+
+    for movie in movie_list:
+        if movie.director not in xvals:
+            xvals.append(movie.director)
+            yvals.append(1)
+        elif movie.director in xvals:
+            yvals[xvals.index(movie.director)] = yvals[xvals.index(movie.director)]+1
+
+    bar_data = go.Bar(x=xvals, y=yvals)
+    fig = go.Figure(data=bar_data)
+
+    fig.show()
+
 
 def interactive_design():
     user_input = ''
@@ -519,12 +575,11 @@ def interactive_design():
             movie = create_movie_instance(imdb_dict[int(user_input2)])
             print(movie.info())
 
-            print('-'*100)
             user_input3 =''
             while user_input3 !='exit':
                 # Need change here
-                user_input3 = input('''For more detailed information for the movie, enter 'stars' for more movies played by the stars, enter 'save' to save this movie records in your personalized database, enter 'time' or 'rating' to show bar plot of your movie database's ages and movie rating information, enter 'return' to go back to upper level, or enter 'exit' to end the program: ''')
                 print("-"*100)
+                user_input3 = input('''For more detailed information for the movie, enter 'summary' for plot summary, enter 'stars' for more movies played by the stars, enter 'save' to save this movie records in your personalized database, enter 'showdb' to see current your movie db, enter 'return' to go back to upper level, or enter 'exit' to end the program: ''')
                 if user_input3 == 'return':
                     break
                 elif user_input3 == 'exit':
@@ -538,14 +593,32 @@ def interactive_design():
                     # Save the movie to the personalized database
                     insert_fav_db(movie)
                     print("You have successfully saved this movie in your favorite movie database.")
-                elif user_input3 == 'time':
-                    # Plot the current db number of movies in each decade 
-                    plot_time(MOVIE_DBLIST)
-                elif user_input3 == 'rating':
-                    plot_rating(MOVIE_DBLIST)
+                elif user_input3 == 'showdb':
+                    user_input4 =''
+                    while user_input4 !='exit':
+                        print('-'*100)
+                        user_input4 = input("Enter 'time' to see number of movies in different era, or 'rating' to see movie database's ratings summary, or 'stars' to see star summary, or 'director' to see director summary, 'return' to go back, 'exit' to end the program: ")
+                        if user_input4 == 'return':
+                            break
+                        elif user_input4 == 'exit':
+                            exit()
+                        elif user_input4 == 'time':
+                            # Plot the current db number of movies in each decade
+                            plot_time(MOVIE_DBLIST)
+                        elif user_input4 == 'rating':
+                            plot_rating(MOVIE_DBLIST)
+                        elif user_input4 == 'stars':
+                            plot_star(MOVIE_DBLIST)
+                        elif user_input4 == 'director':
+                            plot_director(MOVIE_DBLIST)
+                        else:
+                            print("Invalid Input")
+                            continue
+
                 else:
                     print("Invalid Input")
                     continue
+
 
 
 
