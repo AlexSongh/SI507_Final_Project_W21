@@ -56,7 +56,6 @@ Simply run the program. The instructions is also embedded in the interactive pro
 #### Step 1:
 Enter a number to tell the program how many results top movies to show.
 Or enter "exit" to end the program.
-
 #### Step 2:
 Enter a specific number to show the detailed information of the movie;
 Or enter "return" to go back to the upper level Step 1;
@@ -65,8 +64,12 @@ Or enter "exit" to end the program.
 Enter "summary" for plot summary;
 Or enter "stars" for more movies of the related stars;
 Or enter "save" to save the movie in your favorite movie database called "favmovie.sqlite";
-Or enter "time" to show how many movies in each decade in your current database to get an insight of your movie taste;
-Or enter "rating" to show movie_ratings of your favorite movies in movie database.
+Or enter "showdb" to continue Step 4.
+#### Step 4:
+Enter "time" to show how many movies in each decade in your current database to get an insight of your movie taste;
+Or enter "rating" to show movie_ratings of your favorite movies in movie database;
+Or enter "stars" to show number of movies associated with the stars of the movies you saved in movie database;
+Or enter "director" to show number of movies associated with directors of the movies you saved in movie database;
 Or enter "return" to go back to the upper level Step 2;
 Or enter "exit" to end the program.
 
