@@ -16,7 +16,7 @@ iTunes API
 bs4, requests, sqlite3, json
 
 ## Description:
-This code will show the top IMDb movies (ranging from 0 to 250). You can find detailed information of the movie, plot summary of the movie, and more representative movies of the stars in that movie using iTunes API requests. And also you can save the top 250 movies in your personalized movie database.
+This code will show the top IMDb movies (ranging from 0 to 250). You can find detailed information of the movie, plot summary of the movie, and more representative movies of the stars in that movie using iTunes API requests. And also you can save the top 250 movies in your personalized movie database. Also a graphic summary (bar plot) will be provided for your database. For example, how many movies are in 1990s, how many movies are R rated, how many movies is starred by Tim Robbins, how may movies is directed by Christopher Nolan. 
 
 ## final_project.py:
 Description: contains interactive program and other project code. 
@@ -42,6 +42,8 @@ _display_top()_: Display the top <num> results of the top movies in IMDb
 _get_itunes_data()_: Get iTunes data from iTunes API based on the search and limit query
 
 _show_star_more()_: Show more movies of the stars from the movie
+
+_plot_time()_, _plot_rating()_,_plot_stars()_,_plot_director()_: draw barplot from a list of movie instances for diffrent categories.
 
 _interactive_design()_: Main interactive program code
 
